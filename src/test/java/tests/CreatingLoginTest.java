@@ -51,6 +51,7 @@ public class CreatingLoginTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
+        accessToken = response.then().extract().body().path("accessToken");
         response.then().assertThat().body("message", equalTo("Email, password and name are required fields"))
                 .and()
                 .statusCode(403);
@@ -64,6 +65,7 @@ public class CreatingLoginTest extends BaseClass {
         String password = "";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
+        accessToken = response.then().extract().body().path("accessToken");
         response.then().assertThat().body("message", equalTo("Email, password and name are required fields"))
                 .and()
                 .statusCode(403);
