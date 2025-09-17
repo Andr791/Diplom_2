@@ -2,6 +2,7 @@ package tests;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -11,6 +12,7 @@ import static steps.Steps.*;
 import static steps.Steps.deleteUser;
 
 public class ListOfOrdersTest extends BaseClass {
+    private String accessToken;
 
     @Test
     @DisplayName("Получить список заказов пользователя")
@@ -20,7 +22,7 @@ public class ListOfOrdersTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         Response responseIngredients = ingredients();
         String ingredientsOne = responseIngredients.then().extract().body().path("data[0]._id");
@@ -33,7 +35,6 @@ public class ListOfOrdersTest extends BaseClass {
                 .and()
                 .statusCode(200);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -45,5 +46,10 @@ public class ListOfOrdersTest extends BaseClass {
                 .and()
                 .statusCode(401);
     }
-
+    @After
+    public void cleanup() {
+        if (accessToken != null) {
+            deleteUser(accessToken);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package tests;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -9,6 +10,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static steps.Steps.*;
 
 public class CreatingLoginTest extends BaseClass {
+    private String accessToken;
 
     @Test
     @DisplayName("Позитивный тест создания логина")
@@ -22,8 +24,7 @@ public class CreatingLoginTest extends BaseClass {
                 .and()
                 .statusCode(200);
 
-        String accessToken = response.then().extract().body().path("accessToken");
-        deleteUser(accessToken);
+        accessToken = response.then().extract().body().path("accessToken");
     }
 
     @Test
@@ -34,13 +35,12 @@ public class CreatingLoginTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
         Response responsePovtor = userCreate(email, password, name);
         responsePovtor.then().assertThat().body("message", equalTo("User already exists"))
                 .and()
                 .statusCode(403);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -68,5 +68,10 @@ public class CreatingLoginTest extends BaseClass {
                 .and()
                 .statusCode(403);
     }
-
+    @After
+    public void cleanup() {
+        if (accessToken != null) {
+            deleteUser(accessToken);
+        }
+    }
 }

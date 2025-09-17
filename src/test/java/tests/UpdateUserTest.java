@@ -2,6 +2,7 @@ package tests;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -9,6 +10,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static steps.Steps.*;
 
 public class UpdateUserTest extends BaseClass {
+    private String accessToken;
 
     @Test
     @DisplayName("Позитивный тест изменения юзера") // имя теста
@@ -20,14 +22,13 @@ public class UpdateUserTest extends BaseClass {
         String nameNew = "Dima";
 
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         Response responseUpdate = updateLogin(nameNew, email, accessToken);
         responseUpdate.then().assertThat().body("user.name", equalTo(nameNew))
                 .and()
                 .statusCode(200);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -40,14 +41,13 @@ public class UpdateUserTest extends BaseClass {
         String emailNew = "azxqwe777@mail.ru";
 
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         Response responseUpdate = updateLogin(name, emailNew, accessToken);
         responseUpdate.then().assertThat().body("user.email", equalTo(emailNew))
                 .and()
                 .statusCode(200);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class UpdateUserTest extends BaseClass {
         String nameNew = "Dima";
 
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
         String accessTokenWrong = "";
 
         Response responseUpdate = updateLogin(nameNew, email, accessTokenWrong);
@@ -68,7 +68,6 @@ public class UpdateUserTest extends BaseClass {
                 .and()
                 .statusCode(401);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -81,7 +80,7 @@ public class UpdateUserTest extends BaseClass {
         String emailNew = "azxqwe777@mail.ru";
 
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
         String accessTokenWrong = "";
 
         Response responseUpdate = updateLogin(name, emailNew, accessTokenWrong);
@@ -89,6 +88,11 @@ public class UpdateUserTest extends BaseClass {
                 .and()
                 .statusCode(401);
 
-        deleteUser(accessToken);
+    }
+    @After
+    public void cleanup() {
+        if (accessToken != null) {
+            deleteUser(accessToken);
+        }
     }
 }

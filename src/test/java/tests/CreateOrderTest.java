@@ -2,6 +2,7 @@ package tests;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -9,6 +10,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static steps.Steps.*;
 
 public class CreateOrderTest extends BaseClass {
+    private String accessToken;
 
     @Test
     @DisplayName("Создать заказ - позитивный тест")
@@ -18,7 +20,7 @@ public class CreateOrderTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         Response responseIngredients = ingredients();
         String ingredientsOne = responseIngredients.then().extract().body().path("data[0]._id");
@@ -29,7 +31,6 @@ public class CreateOrderTest extends BaseClass {
                 .and()
                 .statusCode(200);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -40,7 +41,7 @@ public class CreateOrderTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         String[] ingredients = new String[]{};
         Response newOrder = createOrder(ingredients, accessToken);
@@ -48,7 +49,6 @@ public class CreateOrderTest extends BaseClass {
                 .and()
                 .statusCode(400);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -59,14 +59,13 @@ public class CreateOrderTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         String[] ingredients = new String[]{"60d3b"};
         Response newOrder = createOrder(ingredients, accessToken);
         newOrder.then()
                 .statusCode(500);
 
-        deleteUser(accessToken);
     }
 
     @Test
@@ -77,7 +76,7 @@ public class CreateOrderTest extends BaseClass {
         String password = "10458617";
         String name = "Andrey";
         Response response = userCreate(email, password, name);
-        String accessToken = response.then().extract().body().path("accessToken");
+        accessToken = response.then().extract().body().path("accessToken");
 
         Response responseIngredients = ingredients();
         String ingredientsOne = responseIngredients.then().extract().body().path("data[0]._id");
@@ -88,6 +87,13 @@ public class CreateOrderTest extends BaseClass {
                 .and()
                 .statusCode(200);
 
-        deleteUser(accessToken);
     }
+
+    @After
+    public void cleanup() {
+        if (accessToken != null) {
+            deleteUser(accessToken);
+        }
+    }
+
 }
